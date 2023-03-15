@@ -26,4 +26,4 @@ def calculateSumOfPrioritiesOfGroupsOfThree(List<String> lines) {
 }
 
 assert 70 == calculateSumOfPrioritiesOfGroupsOfThree(testData.split('\n') as List)
-println calculateSumOfPriorities(new File('input/day3.txt').readLines())
+println calculateSumOfPrioritiesOfGroupsOfThree(new File('input/day3.txt').readLines())
