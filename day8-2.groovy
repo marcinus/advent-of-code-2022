@@ -36,7 +36,6 @@ def calculateScenicScore(List<String> lines, int y, int x) {
     }
     if(xp < h) i++
     score << i
-    println "$y $x $score"
     score[0]*score[1]*score[2]*score[3]
 }
 
@@ -47,7 +46,6 @@ def getNumberOfVisibleTrees(List<String> lines) {
     (0..<h).collect { y ->
          (0..<w).collect { x ->  
             def s = calculateScenicScore(lines, y, x)   
-            println "$y $x $s"
             s
         }.max()
     }.max()
