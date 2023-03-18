@@ -1,5 +1,3 @@
-
-
 def firstMarkerPosition(String line) {
     def firstMarker = 0
     def elements = [:].withDefault { 0 }
@@ -11,7 +9,7 @@ def firstMarkerPosition(String line) {
         }) {
             return true
         } else {
-            elements[line[it-13]]--
+            elements[line[it-14]]--
             return false
         }
     } + 1 
