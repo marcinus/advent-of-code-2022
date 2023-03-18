@@ -40,14 +40,12 @@ def loadTree(List<String> terminalInput) {
     def currentPath = ''
     for (int i = 0; i < terminalInput.size(); i++) {
         def currentCommand = terminalInput[i]
-        println currentPath
         if(currentCommand.startsWith('$ cd ..')) {
             currentPath = currentPath.substring(0, currentPath.lastIndexOf('/')+(currentPath.count('/')==1 ? 1 : 0))
         } else if (currentCommand.startsWith('$ cd ')) {
             if(currentPath != '' && currentPath != '/') currentPath += '/'
             currentPath = currentPath + (currentCommand - '$ cd ')
         } else if (currentCommand == '$ ls' ) {
-            println "Listing"
             while(i+1 < terminalInput.size() && !terminalInput[i+1].startsWith('\$')) {
                 i++
                 processEntry(currentPath, terminalInput[i])
@@ -71,10 +69,13 @@ def getSumOfDirectoriesOfTotalSizeAtMost100000(List<String> input) {
         : contains[path].sum { calculateTotalSize(path + (path != '/' ? '/' : '') + it) }
     }.memoize()
     loadTree(input)
-    contains.keySet().collect{
-        calculateTotalSize(it)
-    }.findAll { it <= 100000 }.sum()
+    def requiredSpace = 30000000 - (70000000-calculateTotalSize('/'))
+    def elements = contains.keySet().collectEntries{
+        [(it): calculateTotalSize(it)]
+    }.findAll { it.value >= requiredSpace}
+    println elements
+    elements.collect { it.value }.min()
 }
 
-assert 19 == getSumOfDirectoriesOfTotalSizeAtMost100000(testInput.split('\n') as List)
+assert 24933642 == getSumOfDirectoriesOfTotalSizeAtMost100000(testInput.split('\n') as List)
 println getSumOfDirectoriesOfTotalSizeAtMost100000(new File('input/day7.txt').readLines())
