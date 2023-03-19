@@ -29,19 +29,31 @@ Monkey 3:
 """
 
 class Monkey {
+    def id
+    def divisors
     def items
     def operation
     def divisor
     def trueDir
     def falseDir
-    def itemsInspected = 0
+    def itemsInspected = BigInteger.ZERO
     
-    def Monkey(items,operation,divisor,trueDir,falseDir) {
-    this.items= items
+    def Monkey(id, items,operation,divisor,trueDir,falseDir) {
+    this.id = id
+    this.items= items.collect { it as long }
     this.operation=operation
-    this.divisor=divisor as int
-    this.trueDir=trueDir as int 
-    this.falseDir=falseDir as int 
+    this.divisor=BigInteger.valueOf(divisor as long)
+    this.trueDir=trueDir as int
+    this.falseDir=falseDir as int
+    }
+    
+    public void setDivisorsAndUpdateItems(divisors) {
+        this.divisors = divisors
+        items = items.collect { item ->
+            divisors.collect { div ->
+                item % div
+            }
+        }
     }
     
     public String toString() {
@@ -51,32 +63,40 @@ class Monkey {
     def calculate() {
         def result = [:].withDefault { [] }
         items.collect {
-            def worry = (operate(it) / 3) as int
-            if(worry % divisor == 0) result[trueDir] << worry
+            def worry = operate(it)
+            if(worry[id as int] == 0) result[trueDir] << worry
             else result[falseDir] << worry
         }
-        itemsInspected += items.size()
+        itemsInspected = itemsInspected.plus(BigInteger.valueOf(items.size()))
         items = []
         result
     }
     
-    int add(operands, worry) {
-        operands.collect {
-            it == 'old' ? worry as int : it as int
-        }.sum()
-    }
-    
-    int multiply(operands, worry) {
-        def result = 1
-        operands.collect {
-            it == 'old' ? worry as int : it as int
-        }.each {
-            result *= it
+    List<Long> add(operands, List<Long> worry) {
+        def result = (1..worry.size()).collect { 0 as long }
+        operands.collect { operand -> 
+            operand == 'old' ? worry: ((1..(worry.size())).collect { operand as long })
+        }.each { operand ->
+            result.eachWithIndex { item, index ->
+                result[index] = (item + operand[index]) % divisors[index]
+            }
         }
         result
     }
     
-    int operate(worry) {
+    List<Long> multiply(operands, List<Long> worry) {
+        def result = (1..worry.size()).collect { 1 as long }
+        operands.collect { operand ->
+            operand == 'old' ? worry: ((1..(worry.size())).collect { operand as long })
+        }.each { operand ->
+            result.eachWithIndex { item, index ->
+                result[index] = (item * operand[index]) % divisors[index]
+            }
+        }
+        result
+    }
+    
+    List<Long> operate(worry) {
         if(operation.contains(' + ')) {
             add(operation.split(' \\+ '), worry)
         } else if(operation.contains(' * ')) {
@@ -106,17 +126,21 @@ def regex = ~"""(?m)Monkey (\\d)+:
     def result =input =~ regex
     
     def monkeys = result.collect {
-        new Monkey(items=it[2].split(', ') as List, operation=it[3], divisor=it[4], trueDir=it[5], falseDir=it[6])
+        new Monkey(id=it[1], items=it[2].split(', ') as List, operation=it[3], divisor=it[4], trueDir=it[5], falseDir=it[6])
     }
-   
     
-    20.times {
+    def divisors = monkeys.collect {it.divisor}
+    monkeys.each {
+        it.setDivisorsAndUpdateItems(divisors)
+    }
+    
+    10000.times {
         round(monkeys)
     }
     
     def processedItems = monkeys.collect {it.itemsInspected}.sort().reverse()
+    println processedItems
     processedItems[0]*processedItems[1]
 }
-
-assert 10605 == monkeyBussiness(testInput)
+assert 2713310158 == monkeyBussiness(testInput)
 println monkeyBussiness(new File('input/day11.txt').text)
