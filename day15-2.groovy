@@ -60,9 +60,9 @@ def findBeacon(List<String> lines, int xMax, int yMax) {
     
     def xp = getBeaconPosition(sensorBeacons, yp)
     
-    4000000*xp+yp
+    4000000*(xp as long)+yp as long
 }
 
 
 assert 56000011 == findBeacon(testData.split('\n') as List, 20, 20)
-println findBeacon(new File('input/day15.txt').readLines(), 4000000, 1000)
+println findBeacon(new File('input/day15.txt').readLines(), 4000000, 4000000)
